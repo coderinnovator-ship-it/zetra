@@ -1,394 +1,148 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ZETRA — Secure Identity (Encrypted Export + QR)</title>
-<meta name="theme-color" content="#0f4fff">
-<!-- QR library (small, reliable CDN) -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZETRA WORLD — Identity System</title>
+
 <style>
-:root{
-  --bg:#f7f9fc;--panel:#fff;--muted:#6b7280;--accent:#0f4fff;--accent-2:#06b6d4;--radius:12px;--maxw:980px;
-  --danger:#ef4444;--success:#10b981;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{
-  font-family:Inter,system-ui,Arial; background:var(--bg); color:#0b1220; display:flex;align-items:flex-start;justify-content:center;padding:36px 18px;
-}
-.page{width:100%;max-width:980px}
-.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.logo{font-weight:800;color:var(--accent);font-size:20px;letter-spacing:2px}
-.tag{color:var(--muted);font-size:13px;margin-left:10px}
-.nav-actions{display:flex;gap:10px}
-.btn{padding:10px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
-.btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;box-shadow:0 8px 28px rgba(15,79,255,0.08)}
-.btn-ghost{background:transparent;border:1px solid rgba(11,18,32,0.06);color:var(--muted)}
-.hero{display:flex;gap:24px;align-items:flex-start}
-.hero-left{flex:1}
-.headline{font-size:30px;margin:0 0 10px}
-.lead{color:var(--muted);margin:0 0 18px;max-width:640px}
-.panel{width:380px;background:var(--panel);border-radius:12px;padding:16px;border:1px solid rgba(11,18,32,0.04);box-shadow:0 8px 30px rgba(16,24,40,0.04)}
-.idcard{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
-.avatar{width:84px;height:84px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:28px;color:white;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
-.label{font-size:12px;color:var(--muted)}
-.value{font-weight:800;font-size:15px;margin-top:6px;word-break:break-word;text-align:center}
-.small{font-size:13px;color:var(--muted);margin-top:6px}
-.panel-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center}
-.footer{margin-top:28px;text-align:center;color:var(--muted);font-size:13px}
-.features{display:flex;gap:12px;margin-top:20px}
-.fbox{flex:1;background:var(--panel);padding:14px;border-radius:10px;border:1px solid rgba(11,18,32,0.04);color:var(--muted)}
+    body {
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+        background: #02040a;
+        color: white;
+        text-align: center;
+        overflow-x: hidden;
+    }
 
-/* modal */
-.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(9,12,20,0.45);z-index:80}
-.modal{width:100%;max-width:520px;background:var(--panel);padding:18px;border-radius:12px;border:1px solid rgba(11,18,32,0.06)}
-.field{margin-top:10px}
-.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
-.field input[type="text"], .field input[type="password"], .field input[type="file"]{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(11,18,32,0.06);background:transparent;font-size:15px;color:inherit}
-.color-row{display:flex;gap:8px;margin-top:8px}
-.color-option input{display:none}
-.color-option span{display:inline-block;width:36px;height:36px;border-radius:8px;border:2px solid rgba(11,18,32,0.06);cursor:pointer}
-.color-option input:checked + span{outline:3px solid rgba(15,79,255,0.12);transform:translateY(-2px)}
+    /* Neon Scan Line */
+    .scan-line {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #00eaff;
+        box-shadow: 0 0 15px #00eaff;
+        animation: scan 3s linear infinite;
+    }
+    @keyframes scan {
+        0% { top: 0; }
+        100% { top: 100%; }
+    }
 
-/* password strength */
-.strength {height:10px;border-radius:8px;background:#eee;overflow:hidden;margin-top:8px}
-.strength > i{display:block;height:100%;width:0%;transition:width .3s}
-.strength.low > i{width:33%;background:var(--danger)}
-.strength.medium > i{width:66%;background:#f59e0b}
-.strength.high > i{width:100%;background:var(--success)}
-.strength-label{font-size:13px;color:var(--muted);margin-top:6px}
+    /* Wrapper */
+    .container {
+        margin-top: 120px;
+        padding: 20px;
+    }
 
-/* QR */
-.qr-wrap{text-align:center;margin-top:12px}
-.qr-canvas{display:inline-block;padding:8px;background:#fff;border-radius:8px}
+    h1 {
+        font-size: 38px;
+        letter-spacing: 4px;
+        margin-bottom: 10px;
+        text-shadow: 0 0 15px #00eaff;
+    }
 
-/* utilities */
-.hidden{display:none}
-.muted{color:var(--muted)}
-@media (max-width:880px){.hero{flex-direction:column}.panel{width:100%}.features{flex-direction:column}}
+    p {
+        color: #8ba3b5;
+        margin-bottom: 30px;
+    }
+
+    /* Inputs & buttons */
+    input {
+        width: 80%;
+        max-width: 330px;
+        padding: 14px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        font-size: 18px;
+        margin-top: 10px;
+    }
+
+    button {
+        width: 80%;
+        max-width: 330px;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        color: #000;
+        background: #00eaff;
+        font-weight: 700;
+        margin-top: 20px;
+        cursor: pointer;
+        box-shadow: 0 0 15px #00eaff;
+    }
+
+    #resultBox {
+        display: none;
+        margin-top: 25px;
+        padding: 20px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        font-size: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    /* Footer */
+    footer {
+        margin-top: 40px;
+        color: #6e7b86;
+        font-size: 14px;
+    }
 </style>
 </head>
+
 <body>
-  <div class="page">
-    <nav class="nav">
-      <div style="display:flex;align-items:center"><div class="logo">ZETRA</div><div class="tag">One ID • One World • One You</div></div>
-      <div class="nav-actions">
-        <button id="createBtn" class="btn btn-primary">Create Zetra ID</button>
-        <button id="recoverBtn" class="btn btn-ghost">Recover / Load</button>
-      </div>
-    </nav>
 
-    <section class="hero">
-      <div class="hero-left">
-        <h1 class="headline">Secure identity with encrypted backups & QR restore</h1>
-        <p class="lead">Create a local cryptographic identity. Export encrypted backups (AES-GCM PBKDF2) and recover them using your password. QR export included.</p>
+<div class="scan-line"></div>
 
-        <div style="margin-top:14px">
-          <button id="quickCreate" class="btn btn-primary" style="margin-right:8px">Quick Create</button>
-          <a class="muted" href="#" id="learnMore">Learn how it works →</a>
-        </div>
+<div class="container">
+    <h1>ZETRA WORLD</h1>
+    <p>One ID. One Universe. One You.</p>
 
-        <div class="features" style="margin-top:20px">
-          <div class="fbox"><h4 style="margin:0 0 8px">Encrypted Backup</h4><div class="muted">AES-GCM + PBKDF2 with strong iterations.</div></div>
-          <div class="fbox"><h4 style="margin:0 0 8px">Local-first</h4><div class="muted">Keys stay on your device unless you export them.</div></div>
-          <div class="fbox"><h4 style="margin:0 0 8px">QR Restore</h4><div class="muted">Quickly restore from QR or encrypted file.</div></div>
-        </div>
-      </div>
+    <input type="text" id="username" placeholder="Enter your name">
 
-      <aside class="panel">
-        <div id="cardWrap" class="idcard hidden" aria-hidden="true">
-          <div class="avatar" id="avatar">Z</div>
-          <div class="meta">
-            <div class="label">Zetra ID</div>
-            <div class="value" id="zetraId">—</div>
-            <div class="small" id="createdAt">—</div>
-          </div>
-          <div class="panel-actions">
-            <button id="copyBtn" class="btn btn-ghost">Copy</button>
-            <button id="exportBtn" class="btn btn-primary">Export (Encrypted)</button>
-            <button id="qrBtn" class="btn btn-ghost">Export QR</button>
-            <button id="resetBtn" class="btn btn-ghost">Reset</button>
-          </div>
-        </div>
+    <button onclick="generateID()">Generate Zetra ID</button>
 
-        <div id="emptyState" class="empty">
-          <div style="font-weight:700;margin-bottom:6px">No identity yet</div>
-          <div class="muted">Create your Zetra ID to begin.</div>
-        </div>
-      </aside>
-    </section>
+    <div id="resultBox"></div>
 
-    <footer class="footer">© 2025 Zetra Core — Built by Connect & Mei</footer>
-  </div>
+    <footer>© 2025 Zetra World</footer>
+</div>
 
-  <!-- Create / Export modal -->
-  <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
-    <div class="modal" role="document">
-      <h3 id="modalTitle">Create / Export</h3>
-      <p class="muted" id="modalNote">Pick a name and color. When exporting, choose a password to encrypt the backup.</p>
-
-      <div class="field">
-        <label>Display name</label>
-        <input id="displayName" type="text" placeholder="e.g. Connect" maxlength="40"/>
-      </div>
-
-      <div class="field">
-        <div class="field-label muted">Theme color</div>
-        <div class="color-row">
-          <label class="color-option"><input type="radio" name="color" value="#0f4fff" checked><span style="background:#0f4fff"></span></label>
-          <label class="color-option"><input type="radio" name="color" value="#7c3aed"><span style="background:#7c3aed"></span></label>
-          <label class="color-option"><input type="radio" name="color" value="#06b6d4"><span style="background:#06b6d4"></span></label>
-          <label class="color-option"><input type="radio" name="color" value="#f59e0b"><span style="background:#f59e0b"></span></label>
-        </div>
-      </div>
-
-      <hr style="margin:12px 0">
-
-      <div class="field">
-        <label>Backup password (for export)</label>
-        <input id="exportPassword" type="password" placeholder="Choose a strong password" />
-        <div class="strength" id="pwStrength"><i></i></div>
-        <div class="strength-label" id="pwStrengthLabel">Password strength</div>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
-        <button id="cancelBtn" class="btn btn-ghost" type="button">Cancel</button>
-        <button id="doExportBtn" class="btn btn-primary" type="button">Create & Export Encrypted</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recover modal (for password input when importing) -->
-  <div id="recoverModal" class="overlay hidden" role="dialog" aria-modal="true">
-    <div class="modal" role="document">
-      <h3>Recover Encrypted Backup</h3>
-      <p class="muted">Enter the password used to encrypt this backup.</p>
-
-      <div class="field">
-        <label>Password</label>
-        <input id="recoverPassword" type="password" placeholder="Password" />
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
-        <button id="cancelRecover" class="btn btn-ghost">Cancel</button>
-        <button id="doRecoverBtn" class="btn btn-primary">Decrypt & Restore</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- QR modal -->
-  <div id="qrModal" class="overlay hidden" role="dialog" aria-modal="true">
-    <div class="modal" role="document">
-      <h3>Export as QR</h3>
-      <p class="muted">This QR encodes the encrypted backup file (scan to restore). Keep it safe.</p>
-      <div class="qr-wrap">
-        <div id="qrBox" class="qr-canvas"></div>
-        <div style="margin-top:10px">
-          <button id="downloadQrBtn" class="btn btn-primary">Download QR (PNG)</button>
-          <button id="closeQrBtn" class="btn btn-ghost">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- hidden file input -->
-  <input id="fileInput" type="file" accept=".zetra.enc,.enc,.json,application/json" class="hidden">
+<!-- ROBOTIC VOICE -->
+<audio id="voiceAI">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4b0b28a9c5.mp3?filename=robotic-voice-20399.mp3">
+</audio>
 
 <script>
-/* Single-file ZETRA with encrypted export, modal UX, password strength, QR export */
-(async function(){
-  // Elements
-  const createBtn = document.getElementById('createBtn');
-  const quickCreate = document.getElementById('quickCreate');
-  const recoverBtn = document.getElementById('recoverBtn');
-  const overlay = document.getElementById('overlay');
-  const cancelBtn = document.getElementById('cancelBtn');
-  const doExportBtn = document.getElementById('doExportBtn');
-  const displayNameInput = document.getElementById('displayName');
-  const exportPasswordInput = document.getElementById('exportPassword');
-  const pwStrength = document.getElementById('pwStrength');
-  const pwLabel = document.getElementById('pwStrengthLabel');
+function generateID() {
+    const name = document.getElementById("username").value.trim();
+    const voice = document.getElementById("voiceAI");
 
-  const recoverModal = document.getElementById('recoverModal');
-  const cancelRecover = document.getElementById('cancelRecover');
-  const doRecoverBtn = document.getElementById('doRecoverBtn');
-  const recoverPasswordInput = document.getElementById('recoverPassword');
+    if (!name) {
+        alert("Please enter your name.");
+        return;
+    }
 
-  const qrModal = document.getElementById('qrModal');
-  const qrBox = document.getElementById('qrBox');
-  const downloadQrBtn = document.getElementById('downloadQrBtn');
-  const closeQrBtn = document.getElementById('closeQrBtn');
+    // Play robotic welcome voice
+    voice.play();
 
-  const fileInput = document.getElementById('fileInput');
+    // Generate unique identity ID
+    const unique = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const zetraID = `${name}-${unique}`;
 
-  const cardWrap = document.getElementById('cardWrap');
-  const avatarEl = document.getElementById('avatar');
-  const zetraIdEl = document.getElementById('zetraId');
-  const createdAtEl = document.getElementById('createdAt');
+    // Show result
+    const box = document.getElementById("resultBox");
+    box.style.display = "block";
+    box.innerHTML = `
+        <strong>Your Zetra World ID:</strong><br><br>
+        ${zetraID}
+    `;
+}
+</script>
 
-  const copyBtn = document.getElementById('copyBtn');
-  const exportBtn = document.getElementById('exportBtn');
-  const qrBtn = document.getElementById('qrBtn');
-  const resetBtn = document.getElementById('resetBtn');
-
-  const STORAGE_KEY = 'zetra_profile_enc_v2';
-
-  // helper: base64 <-> array buffer
-  function bufToBase64(buf){ const bytes=new Uint8Array(buf); let s=''; for(let i=0;i<bytes.length;i++) s+=String.fromCharCode(bytes[i]); return btoa(s); }
-  function base64ToBuf(b64){ const s=atob(b64); const arr=new Uint8Array(s.length); for(let i=0;i<s.length;i++) arr[i]=s.charCodeAt(i); return arr.buffer; }
-
-  async function sha256HexOf(obj){ const s=(typeof obj==='string')?obj:JSON.stringify(obj); const h=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-
-  // crypto helpers
-  async function generateKeyPair(){
-    const kp = await crypto.subtle.generateKey({name:'ECDSA', namedCurve:'P-256'}, true, ['sign','verify']);
-    const pub = await crypto.subtle.exportKey('jwk', kp.publicKey);
-    const priv = await crypto.subtle.exportKey('jwk', kp.privateKey);
-    return { publicJwk: pub, privateJwk: priv };
-  }
-
-  async function deriveAesKey(password, salt, iterations=200000){
-    const enc = new TextEncoder();
-    const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey({name:'PBKDF2', salt: salt, iterations: iterations, hash:'SHA-256'}, baseKey, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
-  }
-
-  async function encryptProfile(profileObj, password){
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await deriveAesKey(password, salt);
-    const pt = new TextEncoder().encode(JSON.stringify(profileObj));
-    const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, pt);
-    return JSON.stringify({
-      version:1, kdf:'PBKDF2', iter:200000,
-      salt: bufToBase64(salt.buffer),
-      iv: bufToBase64(iv.buffer),
-      ciphertext: bufToBase64(ct)
-    });
-  }
-
-  async function decryptProfile(encJson, password){
-    const obj = JSON.parse(encJson);
-    if(!obj.salt || !obj.iv || !obj.ciphertext) throw new Error('Invalid file');
-    const salt = base64ToBuf(obj.salt);
-    const iv = base64ToBuf(obj.iv);
-    const ct = base64ToBuf(obj.ciphertext);
-    const key = await deriveAesKey(password, salt, obj.iter || 200000);
-    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv: new Uint8Array(iv)}, key, ct);
-    return JSON.parse(new TextDecoder().decode(pt));
-  }
-
-  function saveProfile(profile){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(profile)); }catch(e){ console.error(e); alert('Unable to save locally'); } }
-  function loadProfile(){ try{ const r=localStorage.getItem(STORAGE_KEY); return r?JSON.parse(r):null }catch(e){return null} }
-  function clearProfile(){ localStorage.removeItem(STORAGE_KEY); }
-
-  function renderProfile(p){
-    if(!p){ cardWrap.classList.add('hidden'); document.getElementById('emptyState').classList.remove('hidden'); return; }
-    document.getElementById('emptyState').classList.add('hidden');
-    avatarEl.textContent = (p.displayName && p.displayName[0]) ? p.displayName[0].toUpperCase() : 'Z';
-    zetraIdEl.textContent = p.id || '—';
-    createdAtEl.textContent = 'Created: ' + new Date(p.createdAt).toLocaleString();
-    cardWrap.classList.remove('hidden');
-  }
-
-  function generateZetIdFromHex(hex){
-    const a = hex.slice(0,4).toUpperCase();
-    const b = hex.slice(4,10).toUpperCase();
-    const c = hex.slice(10,14).toUpperCase();
-    return `ZETRA-UID-${a}${b}-${c}-CORE`;
-  }
-
-  // password strength meter (simple)
-  function evaluateStrength(pw){
-    let score = 0;
-    if(pw.length >= 8) score++;
-    if(/[0-9]/.test(pw)) score++;
-    if(/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if(/[^A-Za-z0-9]/.test(pw)) score++;
-    if(pw.length >= 12) score++;
-    if(score <= 2) return 'low';
-    if(score === 3 || score === 4) return 'medium';
-    return 'high';
-  }
-
-  exportPasswordInput.addEventListener('input', ()=>{
-    const pw = exportPasswordInput.value || '';
-    const s = evaluateStrength(pw);
-    pwStrength.className = 'strength ' + s;
-    pwLabel.textContent = s === 'low' ? 'Weak password — use longer & add numbers/symbols' : (s === 'medium' ? 'Medium — OK' : 'Strong password');
-  });
-
-  // Create flow (modal)
-  function openCreateModal(){ overlay.style.display='flex'; overlay.classList.remove('hidden'); displayNameInput.focus(); }
-  function closeCreateModal(){ overlay.classList.add('hidden'); overlay.style.display='none'; displayNameInput.value=''; exportPasswordInput.value=''; pwStrength.className='strength'; pwLabel.textContent='Password strength'; }
-
-  createBtn.addEventListener('click', openCreateModal);
-  cancelBtn.addEventListener('click', closeCreateModal);
-
-  // Quick create
-  document.getElementById('quickCreate').addEventListener('click', async ()=>{
-    const name = prompt('Quick create — enter display name (or leave blank for "User")') || 'User';
-    try{
-      const keys = await generateKeyPair();
-      const hex = await sha256HexOf(keys.publicJwk);
-      const id = generateZetIdFromHex(hex);
-      const profile = { id, displayName: name, color:'#0f4fff', createdAt: Date.now(), publicKeyJwk: keys.publicJwk, privateKeyJwk: keys.privateJwk, meta:{alg:'ECDSA-P-256', ver:1} };
-      saveProfile(profile); renderProfile(profile); alert('Quick identity created. Export encrypted backup to save it.');
-    }catch(e){ console.error(e); alert('Quick create failed'); }
-  });
-
-  // Create + Export
-  doExportBtn.addEventListener('click', async ()=>{
-    const name = (displayNameInput||{value:''}).value.trim();
-    const color = (()=>{ const r=document.querySelector('.color-option input:checked'); return r? r.value:'#0f4fff'; })();
-    const pw = exportPasswordInput.value;
-    if(!name){ alert('Enter display name'); return; }
-    if(!pw || pw.length < 6){ alert('Choose a stronger password (min 6 chars)'); return; }
-    try{
-      const keys = await generateKeyPair();
-      const hex = await sha256HexOf(keys.publicJwk);
-      const id = generateZetIdFromHex(hex);
-      const profile = { id, displayName: name, color, createdAt: Date.now(), publicKeyJwk: keys.publicJwk, privateKeyJwk: keys.privateJwk, meta:{alg:'ECDSA-P-256', ver:1} };
-      // save local
-      saveProfile(profile);
-      renderProfile(profile);
-      // encrypt
-      const enc = await encryptProfile(profile, pw);
-      // compute small fingerprint of ciphertext
-      const fp = (await sha256HexOf(enc)).slice(0,10).toUpperCase();
-      // filename with timestamp and fingerprint
-      const ts = new Date().toISOString().replace(/[:.]/g,'-');
-      const filename = `${id}-${ts}-${fp}.zetra.enc`;
-      // download file
-      const blob = new Blob([enc], {type:'application/json'});
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
-      alert('Encrypted backup downloaded. Store it safely.');
-      closeCreateModal();
-    }catch(err){ console.error(err); alert('Create/export failed: '+(err.message||err)); }
-  });
-
-  // Recover: open file picker and show recover modal for password input
-  recoverBtn.addEventListener('click', ()=>{ fileInput.value=''; fileInput.click(); });
-
-  // when file selected, show password modal and wait for decrypt
-  let pendingFile = null;
-  fileInput.addEventListener('change', async (e)=>{
-    const f = e.target.files && e.target.files[0];
-    if(!f) return;
-    pendingFile = f;
-    recoverModal.style.display='flex'; recoverModal.classList.remove('hidden');
-    recoverPasswordInput.value = '';
-    recoverPasswordInput.focus();
-  });
-
-  cancelRecover.addEventListener('click', ()=>{ recoverModal.classList.add('hidden'); recoverModal.style.display='none'; pendingFile=null; });
-
-  doRecoverBtn.addEventListener('click', async ()=>{
-    if(!pendingFile){ alert('No file selected'); return; }
-    const pw = recoverPasswordInput.value;
-    if(!pw){ alert('Enter password'); return; }
-    try{
-      const txt = await pendingFile.text();
-      const profile = await decryptProfile(txt, pw);
-      if(!profile || !profile.id || !profile.publicKeyJwk || !profile.privateKeyJwk){ alert('Invalid backup or wrong password'); ret
+</body>
+</html>
